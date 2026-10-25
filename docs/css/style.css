@@ -420,3 +420,14 @@ a.card{transition:transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .35s}
 }
 .gal-main>img{transition:transform .5s}
 @media (prefers-reduced-motion:reduce){.ph img,.ph::before,.ph::after,.pc,a.card,.gal-thumbs img,.gal-main>img{transition:none}.pc:hover,a.card:hover{transform:none}.pc:hover .ph img,a.card:hover .ph img{transform:none}}
+
+/* Financiación: foto de fondo con capa oscura para que el texto se lea siempre */
+.fin-hero>.ph.fin-bg{position:absolute;inset:0;height:100%;aspect-ratio:auto;border-radius:0;background-image:none;z-index:0}
+.fin-bg img{object-position:50% 45%}
+.fin-bg::before{opacity:1;z-index:1;background:linear-gradient(100deg,rgba(10,38,51,.94) 0%,rgba(10,38,51,.84) 40%,rgba(10,38,51,.38) 100%)}
+.fin-txt,.fin-pts{position:relative;z-index:2}
+.fin-hero::after{z-index:1}
+.fin-pts li{background:rgba(10,38,51,.72);border-color:rgba(255,255,255,.22)}
+.fin-hero .lead{color:rgba(255,255,255,.9)}
+.fin-pts span:not(.ic){color:rgba(255,255,255,.85)}
+@media (max-width:900px){.fin-bg::before{background:linear-gradient(to bottom,rgba(10,38,51,.94),rgba(10,38,51,.86))}}

@@ -643,7 +643,7 @@ def build_fin():
     cb, cl = crumbs([("Inicio", ""), ("Financiación", "financiacion/")], d)
     form = with_priv(contact_form("financiacion", "", "Solicitar estudio financiero"), d)
     main = f'''{cb}
-<section class="wrap fin-wrap"><div class="fin-hero">
+<section class="wrap fin-wrap"><div class="fin-hero">{ph(UP + "casas-fondo.jpg", "", "16/9", eager=True, cls="fin-bg")}
 <div class="fin-txt"><p class="eyebrow">Asesoramiento hipotecario</p><h1 class="t-hl">Financiación para tu hogar</h1>
 <p class="lead">Ofrecemos un servicio personalizado de asesoramiento hipotecario. Estudiamos a fondo tus necesidades y te acompañamos en todos los trámites.</p>
 <div class="row"><a class="btn" href="#calc">Calcular mi cuota</a><a class="btn btn-ghost-w" href="#estudio">Solicitar estudio</a></div></div>
