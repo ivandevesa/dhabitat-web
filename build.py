@@ -404,20 +404,23 @@ def build_home():
     team = '<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">' + "".join(
         f'<div class="person"><div class="avatar" aria-hidden="true">{n[0]}</div><h3>{n}</h3><span class="small muted">Equipo D&amp;Habitat</span></div>' for n in TEAM) + "</div>"
     main = f'''
-<section class="hero wrap">
+<section class="photo-hero wrap">
+<div class="ph-hero">{ph(UP + "inmuebles-fons-1200x731.jpg", "Casa moderna con piscina, ejemplo de inmueble de la cartera de D&Habitat", "16/9", eager=True)}
+<div class="ph-hero-in">
+<div class="hero-card">
 <p class="eyebrow">Inmobiliaria en Terrassa, Rubí y el Vallès Occidental</p>
-<h1 class="t-display">Tu inmobiliaria de confianza en Terrassa y el Vallès</h1>
+<h1 class="t-hl">Tu inmobiliaria de confianza en Terrassa y el Vallès</h1>
 <p class="lead">Comprar, vender o financiar tu vivienda con todas las garantías, con un equipo que atiende a cada cliente por su nombre.</p>
 <div class="row"><a class="btn" href="{href("comprar/", d)}">Ver inmuebles</a><a class="btn btn-ghost" href="{href("vender/", d)}">Tasación gratuita</a></div>
-<div class="hero-img">{ph(UP + "inmuebles-fons-1200x731.jpg", "Viviendas en venta en Terrassa y el Vallès Occidental", "16/8", eager=True, cls="r2")}</div>
-</section>
-<div class="wrap">{finder}</div>
+</div>
+{finder}
+</div></div></section>
+<section class="sec tight wrap"><div class="row" style="justify-content:space-between;align-items:end;margin-bottom:32px"><div><p class="eyebrow">Inmuebles destacados</p><h2 class="t-h">Viviendas para entrar a vivir</h2></div>
+<a class="btn btn-ghost" href="{href("comprar/", d)}">Ver todos</a></div>{grid(FEATURED, d)}</section>
 <section class="sec tight wrap"><div class="facts">
 <div><b>4,9 ★</b><span>321 opiniones en Google</span></div>
 <div><b>Desde 2014</b><span>Oficina central en Terrassa</span></div>
 <div><b>{len(PROPS)} inmuebles</b><span>en Terrassa y Rubí, a 24 de octubre de 2026</span></div></div></section>
-<section class="sec wrap"><div class="row" style="justify-content:space-between;align-items:end;margin-bottom:40px"><div><p class="eyebrow">Inmuebles destacados</p><h2 class="t-h">Viviendas para entrar a vivir</h2></div>
-<a class="btn btn-ghost" href="{href("comprar/", d)}">Ver todos</a></div>{grid(FEATURED, d)}</section>
 <section class="sec wrap"><p class="eyebrow">Dónde trabajamos</p><h2 class="t-h" style="margin-bottom:40px">Terrassa y Rubí, desde dentro</h2>{zonas}</section>
 <section class="sec wrap"><p class="eyebrow">Qué hacemos por ti</p><h2 class="t-h" style="margin-bottom:40px">Comprar, vender y financiar en un solo sitio</h2>{svc}</section>
 <section class="sec wrap"><p class="eyebrow">Cómo vendemos</p><h2 class="t-h" style="margin-bottom:48px">Del precio justo a la firma, en cuatro pasos</h2>{steps}</section>
@@ -431,7 +434,7 @@ def build_home():
               {"@type": "WebSite", "@id": SITE + "/#website", "url": SITE + "/", "name": BRAND, "inLanguage": "es", "publisher": {"@id": SITE + "/#agency"}}]}]
     write("", page("", f"Inmobiliaria en Terrassa y Rubí · {BRAND}",
         "Inmobiliaria en Terrassa, Rubí y el Vallès Occidental. Compra, vende o financia tu vivienda con D&Habitat: 4,9 ★ en Google y tasación gratuita sin visitas.",
-        main, schema=schema, preload=UP + "inmuebles-fons-1200x731.jpg", imgdns=True), prio="1.0")
+        main, schema=schema, preload=UP + "inmuebles-fons-1200x731.jpg"), prio="1.0")
 
 def build_listing():
     d = 1
@@ -556,11 +559,10 @@ def city_page(muni, props, path, h1, lead, title, desc, zonas_txt, cur, office=F
 <div class="row" style="margin-top:24px"><a class="btn" href="{MAPS}" rel="noopener">Cómo llegar</a><a class="btn btn-ghost" href="{href("contacto/", d)}">Pedir cita</a></div></div></div></section>'''
     main = f'''{cb}
 <section class="hero wrap" style="padding-top:32px"><h1 class="t-hl" style="max-width:18ch">{esc(h1)}</h1><p class="lead">{esc(lead)}</p>
-<div class="row"><a class="btn" href="#inmuebles">Ver inmuebles</a><a class="btn btn-ghost" href="tel:{TEL}">Llamar al {PHONE}</a></div>
-<div class="hero-img">{ph(hero_img, h1, "16/7", eager=True, cls="r2")}</div></section>
-<section class="sec tight wrap"><div class="facts">{"".join(f)}</div></section>
-<section class="sec wrap" id="inmuebles"><p class="eyebrow">Cartera en {esc(muni)}</p><h2 class="t-h" style="margin-bottom:24px">Inmuebles en venta en {esc(muni)}</h2>
-<div class="chips" style="margin-bottom:40px">{chips}</div>{grid(props, d)}
+<div class="row"><a class="btn" href="tel:{TEL}">Llamar al {PHONE}</a><a class="btn btn-ghost" href="{href("vender/", d)}">Tasación gratuita</a></div></section>
+<section class="sec tight wrap" id="inmuebles"><div class="facts" style="margin-bottom:48px">{"".join(f)}</div>
+<p class="eyebrow">Cartera en {esc(muni)}</p><h2 class="t-h" style="margin-bottom:24px">Inmuebles en venta en {esc(muni)}</h2>
+<div class="chips" style="margin-bottom:32px">{chips}</div>{grid(props, d)}
 <p style="margin-top:32px"><a class="tlink" href="{href("comprar/", d)}?poblacion={slug(muni)}">Filtrar por tipo y precio</a></p></section>
 <section class="sec wrap"><div class="prose"><h2>Comprar y vender en {esc(muni)}</h2>{zonas_txt}</div></section>
 {office_html}
@@ -603,10 +605,10 @@ def build_vender():
     main = f'''{cb}
 <section class="hero wrap" style="padding-top:32px"><h1 class="t-hl" style="max-width:18ch">Tasación gratuita de tu vivienda en Terrassa, Rubí y el Vallès</h1>
 <p class="lead">Conocer el valor de tu vivienda es básico para venderla por un precio acorde a sus características y su ubicación. Te la tasamos sin visitas y sin demoras.</p>
-<div class="hero-img">{ph(UP + "inmuebles-1-1200x498.jpg", "Tasación de viviendas en Terrassa y el Vallès", "16/7", eager=True, cls="r2")}</div></section>
-<section class="sec wrap"><div class="grid g2" style="align-items:start"><div><p class="eyebrow">Cómo funciona</p><h2 class="t-h" style="margin-bottom:40px">Cuatro pasos hasta la firma</h2>
+</section>
+<section class="sec tight wrap"><div class="grid g2" style="align-items:start"><div><p class="eyebrow">Cómo funciona</p><h2 class="t-h" style="margin-bottom:40px">Cuatro pasos hasta la firma</h2>
 <ol class="steps" style="grid-template-columns:1fr 1fr"><li><h3>Cuéntanos</h3><p>Dónde está y cómo es tu vivienda.</p></li><li><h3>Te la tasamos</h3><p>Sin visitas y sin demoras, con datos de tu zona.</p></li><li><h3>Salimos al mercado</h3><p>Precio de salida, publicación y visitas.</p></li><li><h3>Firmamos</h3><p>Te acompañamos hasta la entrega de llaves.</p></li></ol></div>
-<div class="sand"><h2 class="t-hs" style="margin-bottom:24px">Solicita tu tasación</h2>{form}</div></div></section>
+<div class="sand first-m"><h2 class="t-hs" style="margin-bottom:24px">Solicita tu tasación</h2>{form}</div></div></section>
 <section class="sec wrap"><div class="grid g2" style="align-items:center">{ph(UP + "oficina-sabadell2.jpg", "Equipo de D&Habitat atendiendo a un cliente", "4/3", cls="r2")}
 <div class="prose"><p class="eyebrow">Por qué tasar con nosotros</p><h2 style="margin-top:0">Un precio justo se apoya en la zona, no en una media</h2>
 <p>El precio de un piso en Pere Parres no se parece al de uno en la Zona Olímpica, y una casa en Els Avets se mueve en otro mercado que un terreno en Can Sola. Conocemos Terrassa, Rubí y el Vallès Occidental porque vendemos aquí cada semana.</p>
@@ -626,8 +628,8 @@ def build_fin():
     main = f'''{cb}
 <section class="hero wrap" style="padding-top:32px"><h1 class="t-hl" style="max-width:16ch">Financiación para tu hogar</h1>
 <p class="lead">Ofrecemos un servicio personalizado de asesoramiento hipotecario. Estudiamos a fondo tus necesidades y te acompañamos en todos los trámites.</p>
-<div class="hero-img">{ph(UP + "inmuebles-rubi-1200x498.jpg", "Financiación para comprar vivienda en el Vallès", "16/7", eager=True, cls="r2")}</div></section>
-<section class="sec wrap"><div class="grid g2" style="align-items:start">
+</section>
+<section class="sec tight wrap"><div class="grid g2" style="align-items:start">
 <div class="sand calc" id="calc"><p class="eyebrow">Calculadora hipotecaria</p>
 <output id="c-cuota" aria-live="polite">0 €</output><p class="muted small" style="margin-top:6px">Cuota mensual orientativa</p>
 <div class="field" style="margin-top:28px"><label for="c-importe">Importe a solicitar (€)</label><input id="c-importe" type="number" inputmode="numeric" min="1000" step="1000" value="200000"></div>
@@ -662,8 +664,8 @@ def build_nosotros():
     main = f'''{cb}
 <section class="hero wrap" style="padding-top:32px"><h1 class="t-hl" style="max-width:18ch">Agencia inmobiliaria en Terrassa y el Vallès Occidental</h1>
 <p class="lead">En D&amp;Habitat anteponemos los intereses de nuestros clientes ofreciendo el mejor asesoramiento y nuestro método de venta. Acompañamos todo el proceso: enseñarte tu futura vivienda, ayudarte a elegir y llevarte hasta la firma.</p>
-<div class="hero-img">{ph(UP + "casa-collbato-1200x498.jpg", "Viviendas del Vallès Occidental", "16/7", eager=True, cls="r2")}</div></section>
-<section class="sec wrap"><p class="eyebrow">Cómo trabajamos</p><h2 class="t-h" style="margin-bottom:40px">Tres ideas que guían cada operación</h2>{v}</section>
+<div class="row"><a class="btn" href="{href("contacto/", d)}">Contactar</a><a class="btn btn-ghost" href="tel:{TEL}">Llamar al {PHONE}</a></div></section>
+<section class="sec tight wrap"><p class="eyebrow">Cómo trabajamos</p><h2 class="t-h" style="margin-bottom:40px">Tres ideas que guían cada operación</h2>{v}</section>
 <section class="sec wrap"><div class="grid g2" style="align-items:center"><div class="prose"><p class="eyebrow">Equipo</p><h2 style="margin-top:0">Las personas detrás de las opiniones</h2>
 <p>En Google, nuestros clientes agradecen por su nombre a quienes les han acompañado. Respondemos cada opinión una a una, y esos nombres son los que verás en la oficina.</p>
 {rating_line()}</div>{ph(UP + "oficina-terrassa.jpg", "Oficina central de D&Habitat en Terrassa", "4/3", cls="r2")}</div>
@@ -690,8 +692,7 @@ def build_contact():
 <p><b style="font-weight:500">D&amp;HABITAT by FINANCE</b><br>Pla de l'Ametllera, 100, local L'Ametllera<br>08225 Terrassa (Barcelona)</p>
 <p>Teléfono: <a href="tel:{TEL}">{PHONE}</a></p>
 <p>También atendemos con cita online.</p>
-<div class="row"><a class="btn" href="{MAPS}" rel="noopener">Cómo llegar</a><a class="btn btn-ghost" href="{FB}" rel="noopener">Facebook</a><a class="btn btn-ghost" href="{IG}" rel="noopener">Instagram</a></div>
-<div style="margin-top:32px">{ph(UP + "oficina-terrassa.jpg", "Oficina de D&Habitat en Terrassa", "4/3", cls="r2")}</div></div></div></section>'''
+<div class="row"><a class="btn" href="{MAPS}" rel="noopener">Cómo llegar</a><a class="btn btn-ghost" href="{FB}" rel="noopener">Facebook</a><a class="btn btn-ghost" href="{IG}" rel="noopener">Instagram</a></div></div></div></section>'''
     write("contacto/", page("contacto/", "Contacto · Inmobiliaria D&Habitat en Terrassa",
         f"Contacta con D&Habitat by Finance en Terrassa: teléfono {PHONE}, formulario y cómo llegar a la oficina de Pla de l'Ametllera, 100.",
         main, cur="", schema=[{"@context": "https://schema.org", **AGENCY}, cl]), prio="0.7")
