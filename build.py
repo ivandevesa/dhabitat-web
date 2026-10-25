@@ -378,6 +378,24 @@ def write(path, content, index=True, prio="0.7", freq="weekly"):
     with open(os.path.join(d, "index.html"), "w", encoding="utf-8") as f: f.write(content)
     if index: SITEMAP.append((path, prio, freq))
 
+
+def _wic(p): return f'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{p}</svg>'
+WAY_IC = {
+ "val": '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6M9 12h.01M12 12h.01M15 12h.01M9 16h.01M12 16h.01M15 16h.01"/>',
+ "est": '<path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.2"/>',
+ "vis": '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.2A6.5 6.5 0 0 1 21.5 20"/>',
+ "fir": '<circle cx="8" cy="15" r="4"/><path d="m11 12 9-9M16 7l3 3M14 9l2 2"/>',
+ "cue": '<path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10z"/>',
+ "tas": '<path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/>',
+ "mer": '<path d="M3 11l9-8 9 8M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
+}
+def way(eyebrow, h2, steps):
+    lis = "".join(f'<li><span class="way-dot" aria-hidden="true">{i}</span><div class="way-card"><span class="way-ic">{_wic(WAY_IC[ic])}</span><h3>{t}</h3><p>{p}</p></div></li>'
+                  for i, (ic, t, p) in enumerate(steps, 1))
+    return (f'<div class="way" data-way><p class="eyebrow">{eyebrow}</p><h2 class="t-h">{h2}</h2>'
+            f'<div class="way-wrap"><svg class="way-svg" aria-hidden="true"><path class="way-base"/><path class="way-prog"/></svg>'
+            f'<span class="way-pin" aria-hidden="true">{_wic(WAY_IC["mer"])}</span><ol class="way-list">{lis}</ol></div></div>')
+
 # ───────────────────────── Páginas
 def build_home():
     d = 0
@@ -397,10 +415,11 @@ def build_home():
 <div class="sand svc"><h3>Vender</h3><p>Tasamos tu vivienda sin visitas y sin demoras, con datos reales de tu zona, y la comercializamos con nuestro método.</p><a class="tlink" href="{href("vender/", d)}">Pedir tasación gratuita</a></div>
 <div class="sand svc"><h3>Comprar</h3><p>Elige dónde quieres vivir, selecciona la vivienda que mejor encaje con lo que necesitas y solicita una visita con nosotros.</p><a class="tlink" href="{href("comprar/", d)}">Ver inmuebles</a></div>
 <div class="sand svc"><h3>Financiar</h3><p>Asesoramiento hipotecario personalizado. Estudiamos tu caso a fondo y te acompañamos en todos los trámites.</p><a class="tlink" href="{href("financiacion/", d)}">Estudio financiero</a></div></div>'''
-    steps = '''<ol class="steps"><li><h3>Valoración</h3><p>Tasación gratuita, sin visitas y sin demoras.</p></li>
-<li><h3>Estrategia</h3><p>Fijamos el precio de salida y publicamos el inmueble.</p></li>
-<li><h3>Visitas y oferta</h3><p>Filtramos interesados, organizamos visitas y negociamos.</p></li>
-<li><h3>Firma</h3><p>Te acompañamos hasta la firma y la entrega de llaves.</p></li></ol>'''
+    steps = way("Cómo vendemos", "Del precio justo a la firma, en cuatro pasos", [
+        ("val", "Valoración", "Tasación gratuita, sin visitas y sin demoras."),
+        ("est", "Estrategia", "Fijamos el precio de salida y publicamos el inmueble."),
+        ("vis", "Visitas y oferta", "Filtramos interesados, organizamos visitas y negociamos."),
+        ("fir", "Firma", "Te acompañamos hasta la firma y la entrega de llaves.")])
     team = '<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">' + "".join(
         f'<div class="person"><div class="avatar" aria-hidden="true">{n[0]}</div><h3>{n}</h3><span class="small muted">Equipo D&amp;Habitat</span></div>' for n in TEAM) + "</div>"
     main = f'''
@@ -423,7 +442,7 @@ def build_home():
 <div><b>{len(PROPS)} inmuebles</b><span>en Terrassa y Rubí, a 24 de octubre de 2026</span></div></div></section>
 <section class="sec wrap"><p class="eyebrow">Dónde trabajamos</p><h2 class="t-h" style="margin-bottom:40px">Terrassa y Rubí, desde dentro</h2>{zonas}</section>
 <section class="sec wrap"><p class="eyebrow">Qué hacemos por ti</p><h2 class="t-h" style="margin-bottom:40px">Comprar, vender y financiar en un solo sitio</h2>{svc}</section>
-<section class="sec wrap"><p class="eyebrow">Cómo vendemos</p><h2 class="t-h" style="margin-bottom:48px">Del precio justo a la firma, en cuatro pasos</h2>{steps}</section>
+<section class="sec wrap">{steps}</section>
 <section class="sec wrap"><div class="row" style="justify-content:space-between;align-items:end;margin-bottom:40px"><div><p class="eyebrow">Equipo</p><h2 class="t-h">Las personas que más nombran nuestros clientes</h2></div>
 <a class="btn btn-ghost" href="{href("nosotros/", d)}">Conocer al equipo</a></div>{team}</section>
 <section class="sec wrap"><p class="eyebrow">Opiniones de clientes</p><h2 class="t-h">¿Qué opinan de nosotros?</h2>{rating_line()}<div style="margin-top:40px">{testimonials()}</div></section>
@@ -606,8 +625,7 @@ def build_vender():
 <section class="hero wrap" style="padding-top:32px"><h1 class="t-hl" style="max-width:18ch">Tasación gratuita de tu vivienda en Terrassa, Rubí y el Vallès</h1>
 <p class="lead">Conocer el valor de tu vivienda es básico para venderla por un precio acorde a sus características y su ubicación. Te la tasamos sin visitas y sin demoras.</p>
 </section>
-<section class="sec tight wrap"><div class="grid g2" style="align-items:start"><div><p class="eyebrow">Cómo funciona</p><h2 class="t-h" style="margin-bottom:40px">Cuatro pasos hasta la firma</h2>
-<ol class="steps" style="grid-template-columns:1fr 1fr"><li><h3>Cuéntanos</h3><p>Dónde está y cómo es tu vivienda.</p></li><li><h3>Te la tasamos</h3><p>Sin visitas y sin demoras, con datos de tu zona.</p></li><li><h3>Salimos al mercado</h3><p>Precio de salida, publicación y visitas.</p></li><li><h3>Firmamos</h3><p>Te acompañamos hasta la entrega de llaves.</p></li></ol></div>
+<section class="sec tight wrap"><div class="grid g2" style="align-items:start"><div>{way("Cómo funciona", "Cuatro pasos hasta la firma", [("cue", "Cuéntanos", "Dónde está y cómo es tu vivienda."), ("tas", "Te la tasamos", "Sin visitas y sin demoras, con datos de tu zona."), ("mer", "Salimos al mercado", "Precio de salida, publicación y visitas."), ("fir", "Firmamos", "Te acompañamos hasta la entrega de llaves.")])}</div>
 <div class="sand first-m"><h2 class="t-hs" style="margin-bottom:24px">Solicita tu tasación</h2>{form}</div></div></section>
 <section class="sec wrap"><div class="grid g2" style="align-items:center">{ph(UP + "oficina-sabadell2.jpg", "Equipo de D&Habitat atendiendo a un cliente", "4/3", cls="r2")}
 <div class="prose"><p class="eyebrow">Por qué tasar con nosotros</p><h2 style="margin-top:0">Un precio justo se apoya en la zona, no en una media</h2>

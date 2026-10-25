@@ -352,3 +352,44 @@ section.wrap>.lead{margin-top:16px!important}
 .rng::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--sky);border:3px solid #fff;box-shadow:0 1px 6px rgba(0,0,0,.3);margin-top:-8px}
 .rng::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--sky);border:3px solid #fff;box-shadow:0 1px 6px rgba(0,0,0,.3)}
 .fin-wrap~.sec{padding-block:clamp(28px,4vw,48px)}
+
+/* Camino dinámico de pasos */
+.way{container-type:inline-size;position:relative;overflow:hidden;border-radius:var(--r2);color:#fff;padding:clamp(24px,4vw,56px);
+  background:radial-gradient(700px 380px at 95% -10%,rgba(0,150,247,.30),transparent 60%),radial-gradient(500px 360px at 0% 110%,rgba(191,166,143,.26),transparent 60%),linear-gradient(135deg,#0a2633,#12394d)}
+.way .eyebrow{color:#bfa68f}
+.way h2{color:#fff;max-width:24ch}
+.way-wrap{position:relative;margin-top:clamp(28px,4vw,48px)}
+.way-svg{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:0}
+.way-svg path{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.way-base{stroke:rgba(255,255,255,.34);stroke-width:3;stroke-dasharray:2 12;animation:way-march 1.4s linear infinite}
+.way-prog{stroke:var(--sky);stroke-width:5;filter:drop-shadow(0 0 6px rgba(0,150,247,.7))}
+@keyframes way-march{to{stroke-dashoffset:-14}}
+.way-list{list-style:none;margin:0;padding:0;display:grid;gap:36px;position:relative;z-index:1}
+.way-list li{position:relative;display:flex;gap:18px;align-items:flex-start}
+.way-dot{flex:none;display:grid;place-items:center;width:56px;height:56px;border-radius:50%;background:#0f3347;border:2px solid rgba(255,255,255,.4);
+  font-size:21px;font-weight:300;transition:background .4s,border-color .4s,box-shadow .4s,transform .4s}
+.way-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);border-radius:var(--r2);padding:20px 22px;flex:1;min-width:0;
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);transition:opacity .5s,transform .5s,background .4s}
+.way-ic{display:inline-grid;place-items:center;width:42px;height:42px;border-radius:12px;background:rgba(191,166,143,.22);color:#e6d5c3;margin-bottom:12px}
+.way-card h3{font-size:21px;font-weight:400;letter-spacing:-.02em;margin:0 0 6px;color:#fff}
+.way-card p{margin:0;color:rgba(255,255,255,.8);font-size:15.5px}
+.way-pin{position:absolute;left:0;top:0;z-index:3;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;display:grid;place-items:center;
+  background:#fff;color:#0a2633;box-shadow:0 6px 20px rgba(0,0,0,.35);pointer-events:none;will-change:transform;opacity:0}
+.way.js .way-pin{opacity:1}
+.way-pin::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid rgba(0,150,247,.8);animation:way-ring 1.8s ease-out infinite}
+@keyframes way-ring{from{transform:scale(.8);opacity:1}to{transform:scale(1.7);opacity:0}}
+.way.js .way-card{opacity:.38;transform:translateY(12px)}
+.way.js li.on .way-card{opacity:1;transform:none;background:rgba(255,255,255,.12)}
+.way.js li.on .way-dot{background:var(--sky);border-color:#fff;box-shadow:0 0 0 6px rgba(0,150,247,.22)}
+.way.js li.cur .way-dot{transform:scale(1.12)}
+/* vertical (columna estrecha / móvil) */
+.way-list li:nth-child(even) .way-dot{margin-left:24px;margin-right:-24px}
+/* horizontal (cuando hay sitio) */
+@container (min-width:760px){
+ .way-list{grid-template-columns:repeat(4,1fr);gap:20px;align-items:start}
+ .way-list li{flex-direction:column;align-items:center;text-align:center;gap:16px}
+ .way-list li:nth-child(odd){padding-top:72px}
+ .way-list li:nth-child(even) .way-dot{margin:0}
+ .way-card{width:100%}
+}
+@media (prefers-reduced-motion:reduce){.way-base,.way-pin::after{animation:none}.way-card,.way-dot{transition:none}}

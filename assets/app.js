@@ -146,6 +146,70 @@
     run();
   }
 
+  /* Camino dinámico de pasos: la ruta se dibuja y el marcador avanza al hacer scroll */
+  $$("[data-way]").forEach(function (way) {
+    var list = $(".way-list", way), wrap = $(".way-wrap", way), base = $(".way-base", way), prog = $(".way-prog", way), pin = $(".way-pin", way);
+    var lis = $$("li", list), still = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!list || !base || !pin) return;
+    way.classList.add("js");
+    var L = 1, marks = [], cur = 0, target = 0;
+    var build = function () {
+      var o = wrap.getBoundingClientRect(), pts = lis.map(function (li) {
+        var r = $(".way-dot", li).getBoundingClientRect();
+        return { x: r.left - o.left + r.width / 2, y: r.top - o.top + r.height / 2 };
+      });
+      if (pts.length < 2) return;
+      var horiz = Math.abs(pts[1].x - pts[0].x) > Math.abs(pts[1].y - pts[0].y);
+      var d = "M" + pts[0].x + " " + pts[0].y;
+      for (var i = 1; i < pts.length; i++) {
+        var a = pts[i - 1], c = pts[i];
+        d += horiz
+          ? " C" + (a.x + (c.x - a.x) / 2) + " " + a.y + " " + (a.x + (c.x - a.x) / 2) + " " + c.y + " " + c.x + " " + c.y
+          : " C" + a.x + " " + (a.y + (c.y - a.y) / 2) + " " + c.x + " " + (a.y + (c.y - a.y) / 2) + " " + c.x + " " + c.y;
+      }
+      base.setAttribute("d", d); prog.setAttribute("d", d);
+      L = base.getTotalLength();
+      prog.style.strokeDasharray = L; 
+      marks = pts.map(function (pt) {
+        var best = 0, bd = 1e9;
+        for (var k = 0; k <= 240; k++) {
+          var q = base.getPointAtLength(L * k / 240), dd = Math.pow(q.x - pt.x, 2) + Math.pow(q.y - pt.y, 2);
+          if (dd < bd) { bd = dd; best = k / 240; }
+        }
+        return best;
+      });
+      draw();
+    };
+    var draw = function () {
+      var q = base.getPointAtLength(L * cur);
+      prog.style.strokeDashoffset = L * (1 - cur);
+      pin.style.transform = "translate(" + q.x + "px," + q.y + "px)";
+      var idx = -1;
+      lis.forEach(function (li, i) {
+        var on = cur >= marks[i] - 0.004; li.classList.toggle("on", on); if (on) idx = i;
+        li.classList.toggle("cur", i === idx && cur < (marks[i + 1] === undefined ? 2 : marks[i + 1]) - 0.004);
+      });
+    };
+    var calcTarget = function () {
+      var r = way.getBoundingClientRect(), vh = window.innerHeight;
+      var t = (vh * 0.82 - r.top - wrap.offsetTop) / (wrap.offsetHeight * 0.8 + vh * 0.1);
+      target = Math.max(0, Math.min(1, t));
+    };
+    var raf = 0, tick = function () {
+      raf = 0; calcTarget();
+      var diff = target - cur;
+      if (still) cur = target; else cur += diff * 0.09;
+      if (Math.abs(target - cur) < 0.0015) cur = target;
+      draw();
+      if (cur !== target) raf = requestAnimationFrame(tick);
+    };
+    var kick = function () { if (!raf) raf = requestAnimationFrame(tick); };
+    window.addEventListener("scroll", kick, { passive: true });
+    window.addEventListener("resize", function () { build(); kick(); });
+    if ("ResizeObserver" in window) new ResizeObserver(function () { build(); kick(); }).observe(wrap);
+    build(); calcTarget(); cur = still ? 1 : 0; if (still) target = 1; draw(); kick();
+  });
+
   /* Analítica (solo con consentimiento y si hay ID de GA4) */
   function track(name, params) {
     if (window.gtag) window.gtag("event", name, params || {});
