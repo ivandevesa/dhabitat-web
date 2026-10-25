@@ -240,7 +240,7 @@ a.chip:hover{background:rgba(0,0,0,.08)}
 /* Galería de ficha */
 .gal{margin-top:28px}
 .gal-main{position:relative;aspect-ratio:3/2;background:var(--sand);border-radius:var(--r2);overflow:hidden}
-.gal-main>img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;cursor:zoom-in}
+.gal-main>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;cursor:zoom-in}
 .gal-nav,.gal-zoom{position:absolute;display:grid;place-items:center;width:44px;height:44px;border:0;border-radius:50%;
   background:rgba(253,253,247,.92);color:var(--ink);box-shadow:var(--sh2);cursor:pointer;font:inherit;font-size:22px;line-height:1;padding:0}
 .gal-nav:hover,.gal-zoom:hover{background:#fff}
