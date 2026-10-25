@@ -475,7 +475,7 @@ def gallery(p, d):
             f'<div class="gal-main"><img src="{slides[0]}" alt="{esc(p["name"])}" fetchpriority="high" width="1000" height="667">{nav()}'
             f'<button class="gal-zoom" type="button" aria-label="Ampliar foto">&#10530;</button><span class="gal-count" aria-live="polite">1 / {n}</span></div>'
             f'<ul class="gal-thumbs">{th}</ul>'
-            f'<dialog class="gal-lb" aria-label="Fotografías ampliadas"><div class="lb-in"><button class="lb-x" type="button" aria-label="Cerrar">&#10005;</button>{nav()}<img src="" alt=""><span class="gal-count"></span></div></dialog></div>')
+            f'<dialog class="gal-lb" aria-label="Fotografías ampliadas"><div class="lb-in"><button class="lb-x" type="button" aria-label="Cerrar">&#10005;</button>{nav()}<img alt=""><span class="gal-count"></span></div></dialog></div>')
 
 def property_page(p):
     d = 2
