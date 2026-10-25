@@ -131,9 +131,18 @@
       q = r === 0 ? P / n : P * r / (1 - Math.pow(1 + r, -n));
       $("#c-cuota").textContent = fmt(q);
       $("#c-int").textContent = fmt(q * n - P);
+      $("#c-cap").textContent = fmt(P);
       $("#c-total").textContent = fmt(q * n);
+      var bar = $("#c-bar"); if (bar) bar.style.width = Math.max(4, Math.min(100, P / (q * n) * 100)) + "%";
     };
-    $$("input", calc).forEach(function (el) { el.addEventListener("input", run); });
+    ["c-importe", "c-anos", "c-tipo"].forEach(function (id) {
+      var num = document.getElementById(id), rng = document.getElementById(id + "-r");
+      if (rng) {
+        rng.addEventListener("input", function () { num.value = rng.value; run(); });
+        num.addEventListener("input", function () { rng.value = num.value; });
+      }
+      num.addEventListener("input", run);
+    });
     run();
   }
 
