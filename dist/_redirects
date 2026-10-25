@@ -1,0 +1,16 @@
+# Redirecciones 301 desde la web WordPress actual (formato Netlify/Cloudflare Pages)
+/compra-inmueble/        /comprar/                      301
+/alquila-inmueble/       /comprar/                      301
+/valoraciones/           /vender/                       301
+/financiamiento/         /financiacion/                 301
+/dhabitat/               /nosotros/                     301
+/oficina-en-terrassa/    /inmobiliaria-terrassa/        301
+/oficina-en-rubi/        /inmobiliaria-rubi/            301
+/oficina-en-cerdanyola/  /inmobiliaria-terrassa/        301
+/contactar/              /contacto/                     301
+/inmuebles/venta/TERRASSA/  /inmobiliaria-terrassa/     301
+/inmuebles/venta/RUBI/      /inmobiliaria-rubi/         301
+/inmuebles/venta/*       /comprar/                      301
+/inmuebles/alquiler/*    /comprar/                      301
+/inmuebles-poblacion/    /comprar/                      301
+/politica-de-cookies/    /politica-cookies/             301

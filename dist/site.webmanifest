@@ -1,0 +1,27 @@
+{
+ "name": "D&Habitat by Finance",
+ "short_name": "D&Habitat",
+ "lang": "es",
+ "start_url": "/",
+ "display": "browser",
+ "background_color": "#fdfdf7",
+ "theme_color": "#0a2633",
+ "icons": [
+  {
+   "src": "img/l/icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "img/l/icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png"
+  },
+  {
+   "src": "img/l/icon-maskable-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ]
+}
