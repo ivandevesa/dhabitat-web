@@ -94,7 +94,7 @@ h1,h2,h3,h4{margin:0;font-weight:300;text-wrap:balance}
 .hero{padding-bottom:8px}
 .hero-img{margin-top:clamp(40px,6vw,72px)}
 .finder{margin-top:36px;position:relative;z-index:2;background:var(--sand);border-radius:var(--r2);box-shadow:var(--sh1);padding:28px;
-  display:grid;grid-template-columns:repeat(4,1fr) auto;gap:14px;align-items:end;margin-inline:clamp(0px,3vw,40px)}
+  display:grid;grid-template-columns:repeat(3,1fr) auto;gap:14px;align-items:end;margin-inline:clamp(0px,3vw,40px)}
 .finder .field{margin:0}
 
 /* Formularios */

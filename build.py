@@ -403,7 +403,6 @@ def build_home():
 <div class="field"><label for="h-pob">Población</label><select id="h-pob" name="poblacion"><option value="">Todas</option><option value="terrassa">Terrassa</option><option value="rubi">Rubí</option></select></div>
 <div class="field"><label for="h-tipo">Tipo</label><select id="h-tipo" name="tipo"><option value="">Todos</option><option value="piso">Piso</option><option value="casa">Casa</option><option value="solar">Solar</option><option value="local">Local</option><option value="parking">Parking</option></select></div>
 <div class="field"><label for="h-max">Precio máximo</label><select id="h-max" name="max"><option value="">Sin límite</option><option value="100000">100.000 €</option><option value="200000">200.000 €</option><option value="300000">300.000 €</option><option value="500000">500.000 €</option><option value="750000">750.000 €</option></select></div>
-<div class="field"><label>Cartera</label><div style="padding:15px 0;color:#666">{len(PROPS)} inmuebles</div></div>
 <button class="btn" type="submit">Buscar</button></form>'''
     pt, ct, st = stats(TERRASSA); pr, cr, sr = stats(RUBI)
     zonas = f'''<div class="grid g2">
