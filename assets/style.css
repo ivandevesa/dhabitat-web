@@ -393,3 +393,30 @@ section.wrap>.lead{margin-top:16px!important}
  .way-card{width:100%}
 }
 @media (prefers-reduced-motion:reduce){.way-base,.way-pin::after{animation:none}.way-card,.way-dot{transition:none}}
+
+/* Fotos con respuesta al pasar el ratón */
+.ph img{transition:transform .7s cubic-bezier(.2,.7,.2,1),filter .4s}
+.ph::before{content:"";position:absolute;inset:0;z-index:1;opacity:0;pointer-events:none;transition:opacity .4s;
+  background:linear-gradient(to top,rgba(10,38,51,.55),rgba(10,38,51,.05) 60%)}
+.ph::after{position:absolute;left:50%;top:50%;z-index:2;opacity:0;pointer-events:none;transform:translate(-50%,-30%);
+  background:#fff;color:#000;padding:10px 18px;border-radius:99px;font-size:14px;font-weight:500;white-space:nowrap;box-shadow:0 6px 20px rgba(0,0,0,.25);
+  transition:opacity .35s,transform .35s cubic-bezier(.2,.7,.2,1)}
+.pc .ph::after{content:"Ver inmueble →"}
+a.card .ph::after{content:"Ver inmuebles →"}
+.pc{position:relative;transition:transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .35s}
+.pc h3 a::after{content:"";position:absolute;inset:0;z-index:3}
+.pc .tag{z-index:4;pointer-events:none}
+a.card{transition:transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .35s}
+.gal-thumbs img{transition:transform .4s}
+@media (hover:hover){
+  .pc:hover,a.card:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(10,38,51,.2)}
+  .pc:hover .ph img,a.card:hover .ph img{transform:scale(1.09)}
+  .pc:hover .ph::before,a.card:hover .ph::before{opacity:1}
+  .pc:hover .ph::after,a.card:hover .ph::after{opacity:1;transform:translate(-50%,-50%)}
+  .pc:hover h3 a{text-decoration:underline;text-underline-offset:4px}
+  .prose+.ph:hover img,.ph.r2:hover img{transform:scale(1.05)}
+  .gal-thumbs button:hover img{transform:scale(1.1)}
+  .gal-main:hover>img{transform:scale(1.02)}
+}
+.gal-main>img{transition:transform .5s}
+@media (prefers-reduced-motion:reduce){.ph img,.ph::before,.ph::after,.pc,a.card,.gal-thumbs img,.gal-main>img{transition:none}.pc:hover,a.card:hover{transform:none}.pc:hover .ph img,a.card:hover .ph img{transform:none}}
