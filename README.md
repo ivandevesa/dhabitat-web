@@ -1,8 +1,8 @@
 # D&Habitat by Finance · web rediseñada
 
 ## Contenido del repositorio
-- `dist/` — la web ya generada, lista para subir a cualquier hosting estático (Netlify, Cloudflare Pages, GitHub Pages...).
-- `build.py` + `assets/` — el código fuente. Regenerar la web: `python3 build.py dist` (versión navegable sin servidor: `python3 build.py preview --preview`). Requiere solo Python 3.
+- `docs/` — la web ya generada, lista para subir a cualquier hosting estático (Netlify, Cloudflare Pages, GitHub Pages...).
+- `build.py` + `assets/` — el código fuente. Regenerar la web: `python3 build.py docs` (versión navegable sin servidor: `python3 build.py preview --preview`). Requiere solo Python 3.
 - Los datos de los 38 inmuebles están en `build.py` (lista `PROPS`); las fotos en `assets/img/` (`p` portadas, `g` galerías, `s` sitio, `l` logos).
 
 Sitio estático (HTML + CSS + 1 JS, sin dependencias) con el estilo Samara. Fotos reales de dhabitat.es incluidas en `img/` (galería completa en cada ficha) y logos de marca.
