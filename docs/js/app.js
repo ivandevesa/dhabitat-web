@@ -120,28 +120,108 @@
     apply();
   }
 
-  /* Calculadora hipotecaria (cuota constante, sistema francés) */
-  var calc = $("#calc");
-  if (calc) {
-    var fmt = function (n) { return n.toLocaleString("es-ES", { maximumFractionDigits: 0 }) + " €"; };
-    var run = function () {
-      var P = +$("#c-importe").value, y = +$("#c-anos").value, i = +$("#c-tipo").value / 100;
-      var n = y * 12, r = i / 12, q;
-      if (!(P > 0) || !(n > 0)) return;
-      q = r === 0 ? P / n : P * r / (1 - Math.pow(1 + r, -n));
-      $("#c-cuota").textContent = fmt(q);
-      $("#c-int").textContent = fmt(q * n - P);
-      $("#c-cap").textContent = fmt(P);
-      $("#c-total").textContent = fmt(q * n);
-      var bar = $("#c-bar"); if (bar) bar.style.width = Math.max(4, Math.min(100, P / (q * n) * 100)) + "%";
+  /* Calculadora hipotecaria completa (compra en Cataluña) */
+  var mc = $(".mc");
+  if (mc) {
+    var $id = function (i) { return document.getElementById(i); };
+    var val = function (i) { var v = parseFloat($id(i).value); return isFinite(v) ? v : 0; };
+    var eur = function (n) { return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " €"; };
+    var pct = function (n, d) { return n.toLocaleString("es-ES", { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 }) + " %"; };
+    var cuotaDe = function (L, tin, y) {
+      var n = y * 12, r = tin / 100 / 12;
+      if (L <= 0 || n <= 0) return 0;
+      return r === 0 ? L / n : L * r / (1 - Math.pow(1 + r, -n));
     };
-    ["c-importe", "c-anos", "c-tipo"].forEach(function (id) {
-      var num = document.getElementById(id), rng = document.getElementById(id + "-r");
+    var itpCat = function (P) {
+      var t = [[600000, 0.10], [900000, 0.11], [1500000, 0.12], [Infinity, 0.13]], prev = 0, s = 0, i;
+      for (i = 0; i < t.length && P > prev; i++) { s += (Math.min(P, t[i][0]) - prev) * t[i][1]; prev = t[i][0]; }
+      return s;
+    };
+    var run = function () {
+      var P = val("m-precio"), S = val("m-ahorro"), inc = val("m-ingresos"), deb = val("m-deudas"), edad = val("m-edad"),
+          anos = val("m-anos"), seg = val("m-seg"), nueva = $id("m-tipo").value === "nueva", hab = $id("m-uso").value === "hab",
+          perfil = $id("m-perfil").value, modo = $id("m-modo").value;
+      var tin = modo === "var" ? val("m-eur") + val("m-dif") : val("m-tin");
+      var notes = [], reduc = hab && perfil !== "no";
+      var plazoMax = Math.max(1, Math.min(40, 75 - edad));
+      var y = anos; if (y > plazoMax) { y = plazoMax; notes.push("Por tu edad, el plazo máximo orientativo es de " + plazoMax + " años: la simulación usa " + plazoMax + "."); }
+      var LTV = hab ? 0.8 : 0.7;
+      var gastos = function (price) {
+        var imp, impL;
+        if (nueva) { imp = price * 0.10 + ((reduc && perfil === "joven") ? 0 : price * 0.015); impL = "IVA (10 %) y AJD" + ((reduc && perfil === "joven") ? " bonificado" : " (1,5 %)"); }
+        else if (reduc) { imp = price * 0.05; impL = "ITP reducido (5 %)"; }
+        else { imp = itpCat(price); impL = "ITP en Cataluña" + (price > 0 ? " (" + pct(imp / price * 100, 1) + ")" : ""); }
+        var otros = price * 0.012, tas = 400;
+        return { imp: imp, impL: impL, otros: otros, tas: tas, tot: imp + otros + tas };
+      };
+      var g = gastos(P), need = Math.max(0, P + g.tot - S);
+      var q = cuotaDe(need, tin, y) + (need > 0 ? seg : 0);
+      var ratio = inc > 0 ? (q + deb) / inc : 9;
+      var shortage = Math.max(0, need - LTV * P);
+      var cap = Math.min(need, LTV * P);
+      var inter = cuotaDe(need, tin, y) * y * 12 - need;
+      /* resultado */
+      $id("r-cuota").textContent = eur(q);
+      $id("r-precio").textContent = eur(P);
+      $id("r-imp-l").textContent = g.impL; $id("r-imp").textContent = eur(g.imp);
+      $id("r-otros").textContent = eur(g.otros); $id("r-tas").textContent = eur(g.tas);
+      $id("r-gastos").textContent = eur(g.tot); $id("r-aho").textContent = eur(S);
+      $id("r-hip").textContent = eur(need); $id("r-ltv").textContent = P > 0 ? pct(need / P * 100, 0) : "0 %";
+      $id("r-int").textContent = eur(Math.max(0, inter)); $id("r-total").textContent = eur(need + Math.max(0, inter));
+      var bar = $id("c-bar"); if (bar) bar.style.width = need > 0 ? Math.max(4, Math.min(100, need / (need + inter) * 100)) + "%" : "100%";
+      $id("r-ratio").textContent = inc > 0 ? pct(ratio * 100, 1) : "—";
+      var gf = $id("r-gfill"); gf.style.width = Math.min(100, ratio / 0.5 * 100) + "%";
+      var state = (shortage > 0 || ratio > 0.35) ? "bad" : ratio > 0.30 ? "warn" : "ok";
+      gf.className = state;
+      var vd = $id("r-verdict"); vd.className = "verdict " + state;
+      vd.textContent = state === "ok" ? "Operación viable" : state === "warn" ? "Viable, pero ajustada" : "No viable con estos datos";
+      var mv = $id("mini-v"); if (mv) { mv.className = "verdict " + state; mv.textContent = state === "ok" ? "Viable" : state === "warn" ? "Ajustada" : "No viable"; $id("mini-q").textContent = eur(q) + "/mes"; }
+      /* máximo asumible (búsqueda por bisección) */
+      var qmax = 0.35 * inc - deb - seg, r = tin / 100 / 12, n = y * 12;
+      var Lmax = qmax > 0 ? (r === 0 ? qmax * n : qmax * (1 - Math.pow(1 + r, -n)) / r) : 0;
+      var lo = 0, hi = 5000000, mid, ok, i;
+      for (i = 0; i < 50; i++) {
+        mid = (lo + hi) / 2; var nd = mid + gastos(mid).tot - S;
+        ok = nd <= LTV * mid && nd <= Lmax; if (ok) lo = mid; else hi = mid;
+      }
+      var Pmax = Math.floor(lo / 1000) * 1000, Lm = Math.max(0, Pmax + gastos(Pmax).tot - S);
+      $id("r-max").textContent = Pmax >= 20000 ? "Vivienda de hasta " + eur(Pmax) : "Con estos datos aún no llegas";
+      $id("r-maxd").textContent = Pmax >= 20000 ? "con una hipoteca de unos " + eur(Lm) + " y la cuota dentro del 35 %" : "Prueba a aportar más ahorro, ampliar el plazo o reducir deudas.";
+      /* avisos */
+      if (shortage > 0) notes.push("Te faltan unos " + eur(shortage) + " de ahorro: el banco financia como máximo el " + pct(LTV * 100) + " del valor y tú pones el resto más los gastos.");
+      else if (P > 0) notes.push("Ahorro mínimo para esta compra: " + eur(P - LTV * P + g.tot) + " (entrada del " + pct((1 - LTV) * 100) + " más gastos).");
+      if (ratio > 0.35 && inc > 0) notes.push("Tu cuota más deudas es el " + pct(ratio * 100, 1) + " de tus ingresos; el límite recomendado es el 35 %. Necesitarías unos " + eur((q + deb) / 0.35) + " netos al mes.");
+      else if (ratio > 0.30) notes.push("Estás por encima del 30 % de endeudamiento: cualquier imprevisto te dejaría con poco margen.");
+      if (modo === "var") notes.push("Si el Euríbor subiera un punto, tu cuota pasaría a unos " + eur(cuotaDe(need, tin + 1, y) + seg) + " al mes.");
+      if (perfil !== "no" && !hab) notes.push("El tipo reducido solo se aplica a la vivienda habitual.");
+      if (nueva && perfil !== "no" && perfil !== "joven" && hab) notes.push("En obra nueva el IVA no se reduce; solo se bonifica el AJD a los jóvenes de 35 años o menos.");
+      $id("r-notes").innerHTML = notes.map(function (t) { return "<li>" + t.replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</li>"; }).join("");
+      mc._summary = "Simulación en la calculadora de D&Habitat:\n" +
+        "- Precio: " + eur(P) + " (" + (nueva ? "obra nueva" : "segunda mano") + ", " + (hab ? "vivienda habitual" : "segunda residencia") + ")\n" +
+        "- Ahorros: " + eur(S) + " · Ingresos netos: " + eur(inc) + "/mes · Otras deudas: " + eur(deb) + "/mes · Edad: " + edad + "\n" +
+        "- Hipoteca: " + eur(need) + " a " + y + " años, " + (modo === "var" ? "variable (Euríbor " + val("m-eur") + " % + " + val("m-dif") + " %)" : "fijo " + val("m-tin") + " %") + "\n" +
+        "- Cuota estimada: " + eur(q) + "/mes · Endeudamiento: " + pct(ratio * 100, 1) + " · Gastos de compra: " + eur(g.tot) + "\n";
+    };
+    /* sincronía número ↔ deslizador */
+    $$("input[type=number]", mc).forEach(function (num) {
+      var rng = document.getElementById(num.id + "-r");
       if (rng) {
         rng.addEventListener("input", function () { num.value = rng.value; run(); });
         num.addEventListener("input", function () { rng.value = num.value; });
       }
       num.addEventListener("input", run);
+    });
+    $$("select", mc).forEach(function (el) { el.addEventListener("change", function () {
+      if (el.id === "m-modo") { $id("m-fijo-f").hidden = el.value === "var"; $id("m-var-f").hidden = el.value !== "var"; }
+      if (el.id === "m-tipo") { $id("m-perfil-f").querySelector(".hint").textContent = el.value === "nueva" ? "En obra nueva se paga IVA (10 %) y AJD (1,5 %); a los jóvenes de 35 años o menos se les bonifica el AJD si es vivienda habitual y no superan 36.000 € de base." : "En Cataluña el ITP baja del 10 % al 5 % en vivienda habitual si la base imponible no supera 36.000 € (se comprueba en la liquidación)."; }
+      run();
+    }); });
+    var send = $id("r-send");
+    if (send) send.addEventListener("click", function () {
+      var ta = $("#estudio textarea"), box = $id("estudio");
+      if (ta) { ta.value = mc._summary || ""; ta.dispatchEvent(new Event("input", { bubbles: true })); }
+      if (box) box.scrollIntoView({ behavior: "smooth", block: "start" });
+      var nm = $("#estudio input[name=nombre]"); if (nm) setTimeout(function () { nm.focus({ preventScroll: true }); }, 500);
     });
     run();
   }

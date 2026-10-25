@@ -638,10 +638,69 @@ def build_vender():
         "Tasación gratuita de tu vivienda en Terrassa, Rubí y el Vallès Occidental, sin visitas y sin demoras. Conoce el valor de tu casa con D&Habitat.",
         main, cur="vender", schema=[cl, ld, faq_ld(["coste", "tasacion", "tiempo", "docs"])]), prio="0.9")
 
+def mortgage_calc():
+    def num(id_, label, val, mn, mx, step, suf, rng=True, hint=""):
+        r = (f'<input class="rng" id="{id_}-r" type="range" min="{mn}" max="{mx}" step="{step}" value="{val}" aria-label="{esc(label)}">' if rng else "")
+        h = f'<small class="hint">{hint}</small>' if hint else ""
+        return (f'<div class="field"><label for="{id_}">{label}</label><div class="num"><input id="{id_}" type="number" inputmode="decimal" min="{mn}" step="{step}" value="{val}"><i>{suf}</i></div>{r}{h}</div>')
+    return f'''<div class="mc"><div class="mc-in">
+<p class="eyebrow">Calculadora hipotecaria</p><h2 class="t-h" style="margin-bottom:12px">¿Qué hipoteca puedes pedir de verdad?</h2>
+<p class="lead" style="margin-bottom:28px">Un banco no mira solo el importe y los años: mira tu precio de compra, tus ahorros, tus ingresos y tus deudas. Rellena estos datos y verás tus gastos reales, tu cuota y si cumples los criterios habituales de las entidades.</p>
+<fieldset class="cg"><legend><span>1</span>La vivienda</legend>
+{num("m-precio", "Precio de la vivienda", 250000, 30000, 1000000, 5000, "€")}
+<div class="two"><div class="field"><label for="m-tipo">Tipo de vivienda</label><select id="m-tipo"><option value="usada">Segunda mano (ITP)</option><option value="nueva">Obra nueva (IVA + AJD)</option></select></div>
+<div class="field"><label for="m-uso">Uso</label><select id="m-uso"><option value="hab">Vivienda habitual</option><option value="seg">Segunda residencia</option></select></div></div>
+<div class="field" id="m-perfil-f"><label for="m-perfil">¿Tienes derecho a tipo reducido?</label><select id="m-perfil"><option value="no">No / no lo sé</option><option value="joven">Joven de 35 años o menos</option><option value="fam">Familia numerosa o monoparental</option><option value="disc">Discapacidad del 65 % o más</option></select>
+<small class="hint">En Cataluña el ITP baja del 10 % al 5 % en vivienda habitual si la base imponible no supera 36.000 € (se comprueba en la liquidación).</small></div></fieldset>
+<fieldset class="cg"><legend><span>2</span>Tu situación</legend>
+{num("m-ahorro", "Ahorros que aportas", 80000, 0, 400000, 5000, "€", True, "Entrada más gastos de compra. Lo habitual es aportar el 20 % del precio más los gastos.")}
+{num("m-ingresos", "Ingresos netos mensuales del hogar", 3000, 800, 10000, 100, "€", True, "Suma de los titulares, después de impuestos (nómina neta mensual).")}
+{num("m-deudas", "Otras cuotas mensuales de deuda", 0, 0, 3000, 25, "€", False, "Préstamos, coche, tarjetas a plazos, pensiones…")}
+{num("m-edad", "Edad del titular de más edad", 35, 18, 70, 1, "años", False, "Las entidades suelen exigir terminar de pagar antes de los 75 años.")}</fieldset>
+<fieldset class="cg"><legend><span>3</span>La hipoteca</legend>
+{num("m-anos", "Plazo", 30, 5, 40, 1, "años")}
+<div class="two"><div class="field"><label for="m-modo">Tipo de interés</label><select id="m-modo"><option value="fijo">Fijo</option><option value="var">Variable (Euríbor + diferencial)</option></select></div>
+<div class="field" id="m-fijo-f"><label for="m-tin">Interés fijo (TIN)</label><div class="num"><input id="m-tin" type="number" inputmode="decimal" min="0" step="0.05" value="3"><i>%</i></div></div></div>
+<div class="two" id="m-var-f" hidden><div class="field"><label for="m-eur">Euríbor 12 meses</label><div class="num"><input id="m-eur" type="number" inputmode="decimal" min="0" step="0.05" value="3.24"><i>%</i></div><small class="hint">Referencia: 3,24 % en septiembre de 2026.</small></div>
+<div class="field"><label for="m-dif">Diferencial</label><div class="num"><input id="m-dif" type="number" inputmode="decimal" min="0" step="0.05" value="0.6"><i>%</i></div></div></div>
+{num("m-seg", "Seguros vinculados (hogar y vida)", 0, 0, 300, 5, "€/mes", False, "Opcional. Súmalo si tu banco los exige para bonificar el tipo.")}</fieldset>
+<a class="mc-mini" href="#r-out"><span class="verdict" id="mini-v">—</span><span><small>Cuota estimada</small><b id="mini-q">0 €</b></span><em>Ver resultado ↓</em></a>
+</div>
+<aside class="mc-out" id="r-out" aria-live="polite"><div class="mc-card">
+<span class="verdict" id="r-verdict">—</span>
+<p class="small" style="margin:14px 0 0;color:rgba(255,255,255,.75)">Cuota mensual estimada</p>
+<output id="r-cuota">0 €</output>
+<div class="gauge-w"><div class="gauge-h"><span>Endeudamiento</span><b id="r-ratio">0 %</b></div><div class="gauge"><i id="r-gfill"></i><u title="Límite recomendado del 35 %"></u></div><div class="gauge-l"><span>0 %</span><span>Máx. recomendado 35 %</span></div></div>
+<dl class="rows">
+<div><dt>Precio de la vivienda</dt><dd id="r-precio">0 €</dd></div>
+<div><dt id="r-imp-l">Impuestos</dt><dd id="r-imp">0 €</dd></div>
+<div><dt>Notaría, registro y gestoría</dt><dd id="r-otros">0 €</dd></div>
+<div><dt>Tasación (la pagas tú)</dt><dd id="r-tas">0 €</dd></div>
+<div class="sum"><dt>Gastos de compra</dt><dd id="r-gastos">0 €</dd></div>
+<div><dt>Ahorros que aportas</dt><dd id="r-aho">0 €</dd></div>
+<div class="sum"><dt>Hipoteca que necesitas</dt><dd id="r-hip">0 €</dd></div>
+<div><dt>Financiación sobre el precio</dt><dd id="r-ltv">0 %</dd></div>
+<div><dt>Intereses totales</dt><dd id="r-int">0 €</dd></div>
+<div><dt>Total a pagar al banco</dt><dd id="r-total">0 €</dd></div></dl>
+<div class="split" aria-hidden="true"><i id="c-bar"></i></div>
+<div class="split-leg"><span><u class="a"></u>Capital</span><span><u class="b"></u>Intereses</span></div>
+<div class="can"><p class="small">Con tus ingresos, tus deudas y tus ahorros podrías optar a</p><b id="r-max">—</b><span id="r-maxd" class="small"></span></div>
+<ul class="notes" id="r-notes"></ul>
+<button class="btn btn-block" type="button" id="r-send">Pedir estudio con estos datos</button>
+<p class="small fine">Simulación orientativa, no es una oferta vinculante. Notaría, registro, gestoría e impuesto de la hipoteca los asume el banco desde la Ley 5/2019; la tasación la pagas tú. Las condiciones reales dependen de la entidad y de tu perfil.</p>
+</div></aside></div>
+<details class="mc-src"><summary>Supuestos y fuentes de la calculadora</summary><div class="ans"><ul>
+<li>Endeudamiento máximo del 35 % de los ingresos netos (criterio del Banco de España que recogen las entidades) y financiación de hasta el 80 % del valor en vivienda habitual (70 % en segunda residencia, criterio habitual). <a class="tlink" href="https://www.consumer.es/?p=107594" rel="noopener" target="_blank">Consumer</a></li>
+<li>ITP en Cataluña desde el 27-6-2025: 10 % hasta 600.000 €, 11 % hasta 900.000 €, 12 % hasta 1.500.000 € y 13 % por encima; 5 % para vivienda habitual de jóvenes de 35 años o menos, familias numerosas y monoparentales y personas con discapacidad del 65 % o más, con límite de renta de 36.000 €. Obra nueva: IVA del 10 % y AJD del 1,5 %. <a class="tlink" href="https://taxdown.es/informacion-impuestos/itp-cataluna" rel="noopener" target="_blank">Taxdown</a></li>
+<li>Notaría, registro y gestoría de la compraventa estimados en un 1,2 % del precio y tasación en 400 €. Son cifras medias: el importe final depende de la notaría y del inmueble.</li>
+<li>Euríbor a 12 meses: 3,24 % en septiembre de 2026. <a class="tlink" href="https://www.idealista.com/news/euribor/anual/evolucion-ano-actual/" rel="noopener" target="_blank">Idealista</a></li>
+<li>En hipoteca variable se supone un Euríbor constante durante todo el plazo; en la práctica la cuota se revisa cada año o cada seis meses.</li></ul></div></details></div>'''
+
 def build_fin():
     d = 1
     cb, cl = crumbs([("Inicio", ""), ("Financiación", "financiacion/")], d)
     form = with_priv(contact_form("financiacion", "", "Solicitar estudio financiero"), d)
+    calc = mortgage_calc()
     main = f'''{cb}
 <section class="wrap fin-wrap"><div class="fin-hero">{ph(UP + "casas-fondo.jpg", "", "16/9", eager=True, cls="fin-bg")}
 <div class="fin-txt"><p class="eyebrow">Asesoramiento hipotecario</p><h1 class="t-hl">Financiación para tu hogar</h1>
@@ -652,20 +711,12 @@ def build_fin():
 <li><span class="ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><b>Amplio abanico de opciones</b><span>Te presentamos distintas posibilidades para elegir.</span></div></li>
 <li><span class="ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10z"/></svg></span><div><b>Acompañamiento en los trámites</b><span>Te informamos y facilitamos cada paso.</span></div></li>
 </ul></div></section>
-<section class="sec tight wrap"><div class="grid g2 fin-two" style="align-items:start">
-<div class="calc" id="calc"><div class="calc-top"><p class="eyebrow">Calculadora hipotecaria</p>
-<output id="c-cuota" aria-live="polite">0 €</output><p class="small">Cuota mensual orientativa</p></div>
-<div class="calc-body">
-<div class="field"><label for="c-importe">Importe a solicitar</label><div class="num"><input id="c-importe" type="number" inputmode="numeric" min="1000" step="1000" value="200000"><i>€</i></div><input class="rng" id="c-importe-r" type="range" min="20000" max="1000000" step="5000" value="200000" aria-label="Importe a solicitar"></div>
-<div class="field"><label for="c-anos">Años de amortización</label><div class="num"><input id="c-anos" type="number" inputmode="numeric" min="1" max="40" value="30"><i>años</i></div><input class="rng" id="c-anos-r" type="range" min="5" max="40" step="1" value="30" aria-label="Años de amortización"></div>
-<div class="field"><label for="c-tipo">Tipo de interés anual</label><div class="num"><input id="c-tipo" type="number" inputmode="decimal" min="0" step="0.05" value="3"><i>%</i></div><input class="rng" id="c-tipo-r" type="range" min="0" max="8" step="0.05" value="3" aria-label="Tipo de interés anual"></div>
-<div class="split" aria-hidden="true"><i id="c-bar" style="width:62%"></i></div>
-<div class="split-leg"><span><u class="a"></u>Capital <b id="c-cap">0 €</b></span><span><u class="b"></u>Intereses <b id="c-int">0 €</b></span></div>
-<div class="res"><div><span>Total final a pagar</span><b id="c-total">0 €</b></div></div>
-<p class="muted small" style="margin:18px 0 0">Simulación orientativa, sin comisiones ni seguros. Las condiciones reales dependen de la entidad y de tu perfil.</p></div></div>
-<div id="estudio" class="fin-form"><p class="eyebrow">Estudio financiero</p><h2 class="t-h" style="margin-bottom:16px">Cuéntanos tu caso</h2>
+<section class="sec tight wrap" id="calc">{calc}</section>
+<section class="sec tight wrap" id="estudio"><div class="grid g2 fin-two" style="align-items:start">
+<div><p class="eyebrow">Estudio financiero</p><h2 class="t-h" style="margin-bottom:16px">Cuéntanos tu caso</h2>
 <p class="lead" style="margin-bottom:24px">Te asesoramos para la compra de tu vivienda y para solicitar una hipoteca según tus necesidades reales. Te acompañamos e informamos de todos los trámites a realizar.</p>
-<div class="sand">{form}</div></div></div></section>
+<p class="muted">Si has usado la calculadora, pulsa «Pedir estudio con estos datos» y rellenaremos el mensaje con tu simulación.</p></div>
+<div class="fin-form"><div class="sand">{form}</div></div></div></section>
 <section class="sec wrap"><p class="eyebrow">Cómo trabajamos</p><h2 class="t-h" style="margin-bottom:36px">Tres pasos hasta tu hipoteca</h2>
 <div class="grid g3 fin-steps">
 <div class="fcard"><span class="ic"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span><em>01</em><h3>Estudiamos tu caso</h3><p>Hablamos contigo para entender qué necesitas y qué puedes asumir, antes de elegir vivienda.</p></div>
